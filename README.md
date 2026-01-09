@@ -7,8 +7,6 @@
 
 Infraestrutura completa para coletar, armazenar e analisar logs do AWS WAF usando **S3 + Glue + Athena + Grafana**, 100% provisionada via Terraform.
 
-**💰 Custo total: ~$450/mês** (vs $4,500 Datadog ou $2,700-4,200 CloudWatch)
-
 **📊 Retenção: 60 dias** | **⚡ Performance: 85% redução no volume escaneado**
 
 🔗 **Repositório**: [github.com/DevWizardsOps/aws-waf-data-lake](https://github.com/DevWizardsOps/aws-waf-data-lake)
