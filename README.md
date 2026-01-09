@@ -115,13 +115,13 @@ Todos os recursos seguem o padrão `waf-data-lake-*`:
 terraform --version
 
 # AWS CLI configurado
-aws configure list --profile aws-prod
+aws configure list
 ```
 
 ### 2. Inicializar
 
 ```bash
-cd /Users/marcelolimax/git/waf
+cd aws-waf-data-lake
 terraform init
 ```
 
@@ -251,7 +251,7 @@ Edite `terraform.tfvars`:
 ```hcl
 project_name       = "waf-data-lake"
 aws_region         = "sa-east-1"
-aws_profile        = "aws-prod"
+aws_profile        = "default"  # ou seu profile AWS CLI
 log_retention_days = 60
 
 tags = {
@@ -436,7 +436,7 @@ terraform {
     bucket         = "your-terraform-state-bucket"
     key            = "waf-data-lake/terraform.tfstate"
     region         = "sa-east-1"
-    profile        = "aws-prod"
+    profile        = "default"  # ou seu profile AWS CLI
     encrypt        = true
     dynamodb_table = "terraform-state-lock"
   }
@@ -464,7 +464,7 @@ terraform destroy
 |----------|-----------|--------|
 | `project_name` | Nome do projeto | `waf-data-lake` |
 | `aws_region` | Região AWS | `sa-east-1` |
-| `aws_profile` | Profile AWS CLI | `aws-prod` |
+| `aws_profile` | Profile AWS CLI | `default` |
 | `account_id` | ID da conta AWS | `<ACCOUNT_ID>` |
 | `log_retention_days` | Retenção logs S3 | `60` |
 | `glue_database_name` | Nome database Glue | `waf_data_lake` |
