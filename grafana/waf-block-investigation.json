@@ -1,0 +1,1034 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "datasource": {
+        "type": "grafana-athena-datasource",
+        "uid": "DS_WAF_DATA_LAKE"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "tooltip": false,
+              "viz": false,
+              "legend": false
+            }
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "options": {
+        "displayLabels": ["name", "percent"],
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "values": ["value", "percent"]
+        },
+        "pieType": "pie",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "connectionArgs": {
+            "catalog": "__default",
+            "database": "waf_data_lake",
+            "region": "sa-east-1",
+            "resultReuseEnabled": false,
+            "resultReuseMaxAgeInMinutes": 60
+          },
+          "datasource": {
+            "type": "grafana-athena-datasource",
+            "uid": "DS_WAF_DATA_LAKE"
+          },
+          "format": 1,
+          "rawSQL": "SELECT \n  terminatingruletype as rule_type,\n  COUNT(*) as total\nFROM waf_data_lake.logs\nWHERE action = 'BLOCK'\n  AND $__timeFilter(from_unixtime(\"timestamp\"/1000))\n  AND terminatingruletype IS NOT NULL\nGROUP BY terminatingruletype\nORDER BY total DESC",
+          "refId": "A"
+        }
+      ],
+      "title": "Bloqueios por Tipo de Regra",
+      "type": "piechart"
+    },
+    {
+      "datasource": {
+        "type": "grafana-athena-datasource",
+        "uid": "DS_WAF_DATA_LAKE"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "tooltip": false,
+              "viz": false,
+              "legend": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 8
+      },
+      "id": 10,
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.97,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": ["sum"],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        },
+        "orientation": "horizontal",
+        "showValue": "auto",
+        "stacking": "none",
+        "tooltip": {
+          "mode": "single",
+          "sort": "desc"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
+      },
+      "targets": [
+        {
+          "connectionArgs": {
+            "catalog": "__default",
+            "database": "waf_data_lake",
+            "region": "sa-east-1",
+            "resultReuseEnabled": false,
+            "resultReuseMaxAgeInMinutes": 60
+          },
+          "datasource": {
+            "type": "grafana-athena-datasource",
+            "uid": "DS_WAF_DATA_LAKE"
+          },
+          "format": 1,
+          "rawSQL": "SELECT \n  CASE \n    WHEN terminatingruleid IS NULL THEN 'No Rule'\n    WHEN terminatingruleid LIKE '%/%' THEN element_at(split(terminatingruleid, '/'), -1)\n    ELSE terminatingruleid\n  END as rule_name,\n  COUNT(*) as blocks\nFROM waf_data_lake.logs\nWHERE action = 'BLOCK'\n  AND $__timeFilter(from_unixtime(\"timestamp\"/1000))\nGROUP BY terminatingruleid\nORDER BY blocks DESC\nLIMIT 15",
+          "refId": "A"
+        }
+      ],
+      "title": "Top 15 Regras Específicas Bloqueadas",
+      "type": "barchart"
+    },
+    {
+      "datasource": {
+        "type": "grafana-athena-datasource",
+        "uid": "DS_WAF_DATA_LAKE"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 0
+      },
+      "id": 2,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "connectionArgs": {
+            "catalog": "__default",
+            "database": "waf_data_lake",
+            "region": "sa-east-1",
+            "resultReuseEnabled": false,
+            "resultReuseMaxAgeInMinutes": 60
+          },
+          "datasource": {
+            "type": "grafana-athena-datasource",
+            "uid": "DS_WAF_DATA_LAKE"
+          },
+          "format": 1,
+          "rawSQL": "SELECT COUNT(*) as total\nFROM waf_data_lake.logs\nWHERE action = 'BLOCK'\n  AND $__timeFilter(from_unixtime(\"timestamp\"/1000))",
+          "refId": "A"
+        }
+      ],
+      "title": "Total de Bloqueios",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "grafana-athena-datasource",
+        "uid": "DS_WAF_DATA_LAKE"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "orange",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 0
+      },
+      "id": 3,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "connectionArgs": {
+            "catalog": "__default",
+            "database": "waf_data_lake",
+            "region": "sa-east-1",
+            "resultReuseEnabled": false,
+            "resultReuseMaxAgeInMinutes": 60
+          },
+          "datasource": {
+            "type": "grafana-athena-datasource",
+            "uid": "DS_WAF_DATA_LAKE"
+          },
+          "format": 1,
+          "rawSQL": "SELECT COUNT(DISTINCT terminatingruleid) as total\nFROM waf_data_lake.logs\nWHERE action = 'BLOCK'\n  AND $__timeFilter(from_unixtime(\"timestamp\"/1000))",
+          "refId": "A"
+        }
+      ],
+      "title": "Regras Distintas Acionadas",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "grafana-athena-datasource",
+        "uid": "DS_WAF_DATA_LAKE"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 20,
+            "gradientMode": "none",
+            "hideFrom": {
+              "tooltip": false,
+              "viz": false,
+              "legend": false
+            },
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 4
+      },
+      "id": 4,
+      "options": {
+        "legend": {
+          "calcs": ["sum", "mean"],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "connectionArgs": {
+            "catalog": "__default",
+            "database": "waf_data_lake",
+            "region": "sa-east-1",
+            "resultReuseEnabled": false,
+            "resultReuseMaxAgeInMinutes": 60
+          },
+          "datasource": {
+            "type": "grafana-athena-datasource",
+            "uid": "DS_WAF_DATA_LAKE"
+          },
+          "format": 0,
+          "rawSQL": "SELECT \n  date_trunc('minute', from_unixtime(\"timestamp\"/1000)) as time,\n  COALESCE(terminatingruleid, 'No Rule') as rule_id,\n  COUNT(*) as blocks\nFROM waf_data_lake.logs\nWHERE action = 'BLOCK'\n  AND $__timeFilter(from_unixtime(\"timestamp\"/1000))\n  AND ('${rule_filter}' = '' OR terminatingruleid = '${rule_filter}')\nGROUP BY date_trunc('minute', from_unixtime(\"timestamp\"/1000)), terminatingruleid\nORDER BY time",
+          "refId": "A"
+        }
+      ],
+      "title": "Bloqueios ao Longo do Tempo por Regra",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "grafana-athena-datasource",
+        "uid": "DS_WAF_DATA_LAKE"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "total_blocks"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 120
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "continuous-RdYlGr",
+                  "reverse": true
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 16
+      },
+      "id": 5,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": ["sum"],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "total_blocks"
+          }
+        ]
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "connectionArgs": {
+            "catalog": "__default",
+            "database": "waf_data_lake",
+            "region": "sa-east-1",
+            "resultReuseEnabled": false,
+            "resultReuseMaxAgeInMinutes": 60
+          },
+          "datasource": {
+            "type": "grafana-athena-datasource",
+            "uid": "DS_WAF_DATA_LAKE"
+          },
+          "format": 1,
+          "rawSQL": "SELECT \n  COALESCE(terminatingruleid, 'No Rule') as rule_id,\n  terminatingruletype as rule_type,\n  COUNT(*) as total_blocks,\n  COUNT(DISTINCT httprequest.clientip) as unique_ips,\n  COUNT(DISTINCT httprequest.country) as countries,\n  COUNT(DISTINCT httprequest.uri) as unique_uris\nFROM waf_data_lake.logs\nWHERE action = 'BLOCK'\n  AND $__timeFilter(from_unixtime(\"timestamp\"/1000))\nGROUP BY terminatingruleid, terminatingruletype\nORDER BY total_blocks DESC\nLIMIT ${table_limit}",
+          "refId": "A"
+        }
+      ],
+      "title": "Análise Detalhada por Regra e Tipo",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "grafana-athena-datasource",
+        "uid": "DS_WAF_DATA_LAKE"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "client_ip"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "targetBlank": true,
+                    "title": "IP Info",
+                    "url": "https://ipinfo.io/${__value.raw}"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 16
+      },
+      "id": 6,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": ["sum"],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "total_blocks"
+          }
+        ]
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "connectionArgs": {
+            "catalog": "__default",
+            "database": "waf_data_lake",
+            "region": "sa-east-1",
+            "resultReuseEnabled": false,
+            "resultReuseMaxAgeInMinutes": 60
+          },
+          "datasource": {
+            "type": "grafana-athena-datasource",
+            "uid": "DS_WAF_DATA_LAKE"
+          },
+          "format": 1,
+          "rawSQL": "SELECT \n  httprequest.clientip as client_ip,\n  COALESCE(httprequest.country, 'Unknown') as country,\n  COALESCE(terminatingruleid, 'No Rule') as triggered_rule,\n  COUNT(*) as total_blocks,\n  MAX(from_unixtime(\"timestamp\"/1000)) as last_blocked\nFROM waf_data_lake.logs\nWHERE action = 'BLOCK'\n  AND $__timeFilter(from_unixtime(\"timestamp\"/1000))\n  AND ('${rule_filter}' = '' OR terminatingruleid = '${rule_filter}')\nGROUP BY httprequest.clientip, httprequest.country, terminatingruleid\nORDER BY total_blocks DESC\nLIMIT 50",
+          "refId": "A"
+        }
+      ],
+      "title": "Top IPs Bloqueados por Regra",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "grafana-athena-datasource",
+        "uid": "DS_WAF_DATA_LAKE"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "event_time"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 180
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "uri"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 300
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 24
+      },
+      "id": 7,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": ["sum"],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "event_time"
+          }
+        ]
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "connectionArgs": {
+            "catalog": "__default",
+            "database": "waf_data_lake",
+            "region": "sa-east-1",
+            "resultReuseEnabled": false,
+            "resultReuseMaxAgeInMinutes": 60
+          },
+          "datasource": {
+            "type": "grafana-athena-datasource",
+            "uid": "DS_WAF_DATA_LAKE"
+          },
+          "format": 1,
+          "rawSQL": "SELECT \n  from_unixtime(\"timestamp\"/1000) as event_time,\n  httprequest.clientip as client_ip,\n  COALESCE(httprequest.country, 'Unknown') as country,\n  httprequest.httpmethod as method,\n  httprequest.uri as uri,\n  COALESCE(terminatingruleid, 'No Rule') as rule_id,\n  terminatingruletype as rule_type,\n  COALESCE(httprequest.headers, ARRAY[]) as headers,\n  httprequest.requestid as request_id\nFROM waf_data_lake.logs\nWHERE action = 'BLOCK'\n  AND $__timeFilter(from_unixtime(\"timestamp\"/1000))\n  AND ('${rule_filter}' = '' OR terminatingruleid = '${rule_filter}')\n  AND ('${ip_filter}' = '' OR httprequest.clientip = '${ip_filter}')\n  AND ('${country_filter}' = '' OR httprequest.country = '${country_filter}')\nORDER BY event_time DESC\nLIMIT ${investigation_limit}",
+          "refId": "A"
+        }
+      ],
+      "title": "Log Detalhado de Bloqueios - Investigação",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "grafana-athena-datasource",
+        "uid": "DS_WAF_DATA_LAKE"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "tooltip": false,
+              "viz": false,
+              "legend": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 34
+      },
+      "id": 8,
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.97,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "orientation": "horizontal",
+        "showValue": "auto",
+        "stacking": "none",
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
+      },
+      "targets": [
+        {
+          "connectionArgs": {
+            "catalog": "__default",
+            "database": "waf_data_lake",
+            "region": "sa-east-1",
+            "resultReuseEnabled": false,
+            "resultReuseMaxAgeInMinutes": 60
+          },
+          "datasource": {
+            "type": "grafana-athena-datasource",
+            "uid": "DS_WAF_DATA_LAKE"
+          },
+          "format": 1,
+          "rawSQL": "SELECT \n  COALESCE(httprequest.country, 'Unknown') as country,\n  COUNT(*) as blocks\nFROM waf_data_lake.logs\nWHERE action = 'BLOCK'\n  AND $__timeFilter(from_unixtime(\"timestamp\"/1000))\n  AND ('${rule_filter}' = '' OR terminatingruleid = '${rule_filter}')\nGROUP BY httprequest.country\nORDER BY blocks DESC\nLIMIT 15",
+          "refId": "A"
+        }
+      ],
+      "title": "Bloqueios por País",
+      "type": "barchart"
+    },
+    {
+      "datasource": {
+        "type": "grafana-athena-datasource",
+        "uid": "DS_WAF_DATA_LAKE"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "tooltip": false,
+              "viz": false,
+              "legend": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 34
+      },
+      "id": 9,
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.97,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "orientation": "horizontal",
+        "showValue": "auto",
+        "stacking": "none",
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
+      },
+      "targets": [
+        {
+          "connectionArgs": {
+            "catalog": "__default",
+            "database": "waf_data_lake",
+            "region": "sa-east-1",
+            "resultReuseEnabled": false,
+            "resultReuseMaxAgeInMinutes": 60
+          },
+          "datasource": {
+            "type": "grafana-athena-datasource",
+            "uid": "DS_WAF_DATA_LAKE"
+          },
+          "format": 1,
+          "rawSQL": "SELECT \n  httprequest.httpmethod as method,\n  COUNT(*) as blocks\nFROM waf_data_lake.logs\nWHERE action = 'BLOCK'\n  AND $__timeFilter(from_unixtime(\"timestamp\"/1000))\n  AND ('${rule_filter}' = '' OR terminatingruleid = '${rule_filter}')\nGROUP BY httprequest.httpmethod\nORDER BY blocks DESC",
+          "refId": "A"
+        }
+      ],
+      "title": "Bloqueios por Método HTTP",
+      "type": "barchart"
+    }
+  ],
+  "refresh": "",
+  "schemaVersion": 38,
+  "style": "dark",
+  "tags": ["waf", "security", "investigation", "blocks"],
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "selected": false,
+          "text": "",
+          "value": ""
+        },
+        "hide": 0,
+        "name": "rule_filter",
+        "options": [
+          {
+            "selected": true,
+            "text": "",
+            "value": ""
+          }
+        ],
+        "query": "",
+        "skipUrlSync": false,
+        "type": "textbox",
+        "label": "Filtrar por Regra"
+      },
+      {
+        "current": {
+          "selected": false,
+          "text": "",
+          "value": ""
+        },
+        "hide": 0,
+        "name": "ip_filter",
+        "options": [
+          {
+            "selected": true,
+            "text": "",
+            "value": ""
+          }
+        ],
+        "query": "",
+        "skipUrlSync": false,
+        "type": "textbox",
+        "label": "Filtrar por IP"
+      },
+      {
+        "current": {
+          "selected": false,
+          "text": "",
+          "value": ""
+        },
+        "hide": 0,
+        "name": "country_filter",
+        "options": [
+          {
+            "selected": true,
+            "text": "",
+            "value": ""
+          }
+        ],
+        "query": "",
+        "skipUrlSync": false,
+        "type": "textbox",
+        "label": "Filtrar por País"
+      },
+      {
+        "current": {
+          "selected": false,
+          "text": "50",
+          "value": "50"
+        },
+        "hide": 0,
+        "includeAll": false,
+        "multi": false,
+        "name": "table_limit",
+        "options": [
+          {
+            "selected": false,
+            "text": "20",
+            "value": "20"
+          },
+          {
+            "selected": true,
+            "text": "50",
+            "value": "50"
+          },
+          {
+            "selected": false,
+            "text": "100",
+            "value": "100"
+          },
+          {
+            "selected": false,
+            "text": "200",
+            "value": "200"
+          }
+        ],
+        "query": "20,50,100,200",
+        "queryValue": "",
+        "skipUrlSync": false,
+        "type": "custom",
+        "label": "Limite Tabela Resumo"
+      },
+      {
+        "current": {
+          "selected": false,
+          "text": "100",
+          "value": "100"
+        },
+        "hide": 0,
+        "includeAll": false,
+        "multi": false,
+        "name": "investigation_limit",
+        "options": [
+          {
+            "selected": false,
+            "text": "50",
+            "value": "50"
+          },
+          {
+            "selected": true,
+            "text": "100",
+            "value": "100"
+          },
+          {
+            "selected": false,
+            "text": "500",
+            "value": "500"
+          },
+          {
+            "selected": false,
+            "text": "1000",
+            "value": "1000"
+          }
+        ],
+        "query": "50,100,500,1000",
+        "queryValue": "",
+        "skipUrlSync": false,
+        "type": "custom",
+        "label": "Limite Logs Detalhados"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "America/Sao_Paulo",
+  "title": "WAF Block Investigation Dashboard",
+  "uid": "waf-block-investigation",
+  "version": 0,
+  "weekStart": ""
+}

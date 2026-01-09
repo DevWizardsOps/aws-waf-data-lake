@@ -1,0 +1,361 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "datasource": {
+        "type": "grafana-athena-datasource",
+        "uid": "DS_WAF_DATA_LAKE"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "event_time"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 180
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "client_ip"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "targetBlank": true,
+                    "title": "IP Info",
+                    "url": "https://ipinfo.io/${__value.raw}"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 20,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": ["sum"],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "connectionArgs": {
+            "catalog": "__default",
+            "database": "waf_data_lake",
+            "region": "sa-east-1",
+            "resultReuseEnabled": false,
+            "resultReuseMaxAgeInMinutes": 60
+          },
+          "datasource": {
+            "type": "grafana-athena-datasource",
+            "uid": "DS_WAF_DATA_LAKE"
+          },
+          "format": 1,
+          "rawSQL": "SELECT\n  from_unixtime(\"timestamp\"/1000) AS event_time,\n  action,\n  httprequest.clientip AS client_ip,\n  httprequest.country AS country,\n  httprequest.httpmethod AS method,\n  httprequest.host AS origin,\n  httprequest.uri AS uri,\n  terminatingruleid,\n  terminatingruletype,\n  httprequest.requestid AS request_id\nFROM waf_data_lake.logs\nWHERE \n  $__timeFilter(from_unixtime(\"timestamp\"/1000))\n  \n  -- Filtros dinâmicos\n  AND ('${ip}' = '' OR httprequest.clientip = '${ip}')\n  AND ('${uri}' = '' OR httprequest.uri LIKE '%${uri}%')\n  AND ('${rule}' = '' OR terminatingruleid = '${rule}')\n  AND ('${action}' = '' OR action = '${action}')\n  AND ('${country}' = '' OR httprequest.country = '${country}')\n  AND ('${method}' = '' OR httprequest.httpmethod = '${method}')\n  AND ('${origin}' = '' OR httprequest.host = '${origin}')\n\nORDER BY event_time DESC\nLIMIT ${row_limit}",
+          "refId": "A",
+          "table": "logs"
+        }
+      ],
+      "title": "WAF Logs Explorer",
+      "type": "table"
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 38,
+  "style": "dark",
+  "tags": ["waf", "security"],
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "selected": false,
+          "text": "",
+          "value": ""
+        },
+        "hide": 0,
+        "name": "ip",
+        "options": [
+          {
+            "selected": true,
+            "text": "",
+            "value": ""
+          }
+        ],
+        "query": "",
+        "skipUrlSync": false,
+        "type": "textbox"
+      },
+      {
+        "current": {
+          "selected": false,
+          "text": "",
+          "value": ""
+        },
+        "hide": 0,
+        "name": "uri",
+        "options": [
+          {
+            "selected": true,
+            "text": "",
+            "value": ""
+          }
+        ],
+        "query": "",
+        "skipUrlSync": false,
+        "type": "textbox"
+      },
+      {
+        "current": {
+          "selected": false,
+          "text": "",
+          "value": ""
+        },
+        "hide": 0,
+        "name": "rule",
+        "options": [
+          {
+            "selected": true,
+            "text": "",
+            "value": ""
+          }
+        ],
+        "query": "",
+        "skipUrlSync": false,
+        "type": "textbox"
+      },
+      {
+        "current": {
+          "selected": false,
+          "text": "All",
+          "value": ""
+        },
+        "hide": 0,
+        "includeAll": false,
+        "multi": false,
+        "name": "action",
+        "options": [
+          {
+            "selected": true,
+            "text": "All",
+            "value": ""
+          },
+          {
+            "selected": false,
+            "text": "ALLOW",
+            "value": "ALLOW"
+          },
+          {
+            "selected": false,
+            "text": "BLOCK",
+            "value": "BLOCK"
+          },
+          {
+            "selected": false,
+            "text": "COUNT",
+            "value": "COUNT"
+          }
+        ],
+        "query": ",ALLOW,BLOCK,COUNT",
+        "queryValue": "",
+        "skipUrlSync": false,
+        "type": "custom"
+      },
+      {
+        "current": {
+          "selected": false,
+          "text": "",
+          "value": ""
+        },
+        "hide": 0,
+        "name": "country",
+        "options": [
+          {
+            "selected": true,
+            "text": "",
+            "value": ""
+          }
+        ],
+        "query": "",
+        "skipUrlSync": false,
+        "type": "textbox"
+      },
+      {
+        "current": {
+          "selected": false,
+          "text": "All",
+          "value": ""
+        },
+        "hide": 0,
+        "includeAll": false,
+        "multi": false,
+        "name": "method",
+        "options": [
+          {
+            "selected": true,
+            "text": "All",
+            "value": ""
+          },
+          {
+            "selected": false,
+            "text": "GET",
+            "value": "GET"
+          },
+          {
+            "selected": false,
+            "text": "POST",
+            "value": "POST"
+          },
+          {
+            "selected": false,
+            "text": "PUT",
+            "value": "PUT"
+          },
+          {
+            "selected": false,
+            "text": "DELETE",
+            "value": "DELETE"
+          },
+          {
+            "selected": false,
+            "text": "OPTIONS",
+            "value": "OPTIONS"
+          }
+        ],
+        "query": ",GET,POST,PUT,DELETE,OPTIONS",
+        "queryValue": "",
+        "skipUrlSync": false,
+        "type": "custom"
+      },
+      {
+        "current": {
+          "selected": false,
+          "text": "",
+          "value": ""
+        },
+        "hide": 0,
+        "name": "origin",
+        "options": [
+          {
+            "selected": true,
+            "text": "",
+            "value": ""
+          }
+        ],
+        "query": "",
+        "skipUrlSync": false,
+        "type": "textbox"
+      },
+      {
+        "current": {
+          "selected": false,
+          "text": "100",
+          "value": "100"
+        },
+        "hide": 0,
+        "includeAll": false,
+        "multi": false,
+        "name": "row_limit",
+        "options": [
+          {
+            "selected": true,
+            "text": "100",
+            "value": "100"
+          },
+          {
+            "selected": false,
+            "text": "500",
+            "value": "500"
+          },
+          {
+            "selected": false,
+            "text": "1000",
+            "value": "1000"
+          },
+          {
+            "selected": false,
+            "text": "5000",
+            "value": "5000"
+          }
+        ],
+        "query": "100,500,1000,5000",
+        "queryValue": "",
+        "skipUrlSync": false,
+        "type": "custom"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "America/Sao_Paulo",
+  "title": "WAF Logs Explorer",
+  "uid": "waf-logs-explorer",
+  "version": 0,
+  "weekStart": ""
+}
