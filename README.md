@@ -11,6 +11,8 @@ Infraestrutura completa para coletar, armazenar e analisar logs do AWS WAF usand
 
 🔗 **Repositório**: [github.com/DevWizardsOps/aws-waf-data-lake](https://github.com/DevWizardsOps/aws-waf-data-lake)
 
+🤖 **[Consultas com IA Generativa](docs/AI_QUERY_ASSISTANT.md)** - Use ChatGPT/Claude como especialista SQL
+
 ## 📋 Arquitetura
 
 ```
@@ -495,15 +497,14 @@ Error: creating IAM Role
 
 ## 📚 Documentação
 
+**Documentação AWS:**
 - [AWS Kinesis Firehose](https://docs.aws.amazon.com/firehose/)
 - [AWS Glue Data Catalog](https://docs.aws.amazon.com/glue/)
 - [Amazon Athena](https://docs.aws.amazon.com/athena/)
 - [Terraform AWS Provider](https://registry.terraform.io/providers/hashicorp/aws/)
 
-## 💡 Artigos e Documentação
-
-- 📝 [Artigo Completo no LinkedIn](docs/ARTIGO_LINKEDIN.md) - História completa da jornada de otimização
-- 📝 [Artigo Conciso](docs/ARTIGO_LINKEDIN_CONCISO.md) - Versão resumida para compartilhamento
+**Guias do Projeto:**
+- 🤖 [Consultas com IA Generativa](docs/AI_QUERY_ASSISTANT.md) - Use ChatGPT/Claude como especialista SQL
 
 ## 🤝 Contribuindo
 
